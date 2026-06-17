@@ -27,8 +27,11 @@ export class TemporalRegister implements OnModuleInit {
       await connection.operatorService.addSearchAttributes({
         namespace: process.env.TEMPORAL_NAMESPACE || 'default',
         searchAttributes: missingAttributes.reduce((all, current) => {
+          // Ember-Social: 2 = KEYWORD (trước là 1 = TEXT). SQL/Postgres visibility chỉ cho
+          // tối đa 3 Text attr; Keyword đúng nghĩa ID + nhiều slot hơn. Khớp với
+          // temporal.search.attribute.ts (cũng đã đổi sang KEYWORD).
           // @ts-ignore
-          all[current] = 1;
+          all[current] = 2;
           return all;
         }, {}),
       });

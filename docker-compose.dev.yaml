@@ -16,7 +16,8 @@ services:
     volumes:
       - postgres-volume:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      # 5433 trên host: tránh đụng Postgres homebrew local đang giữ 5432 (Ember-Social customization)
+      - 5433:5432
     networks:
       - postiz-network
   postiz-redis:
@@ -91,8 +92,9 @@ services:
       - "7233:7233"
     image: temporalio/auto-setup:1.28.1
     depends_on:
+      # Ember-Social: bỏ elasticsearch (image 7.17 crash JVM trên Apple Silicon arm64).
+      # Dùng Postgres làm visibility store cho dev — nhẹ & ổn định hơn.
       - temporal-postgresql
-      - temporal-elasticsearch
     environment:
       - DB=postgres12
       - DB_PORT=5432
@@ -100,9 +102,7 @@ services:
       - POSTGRES_PWD=temporal
       - POSTGRES_SEEDS=temporal-postgresql
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
-      - ENABLE_ES=true
-      - ES_SEEDS=temporal-elasticsearch
-      - ES_VERSION=v7
+      - ENABLE_ES=false
       - TEMPORAL_NAMESPACE=default
     networks:
       - temporal-network
